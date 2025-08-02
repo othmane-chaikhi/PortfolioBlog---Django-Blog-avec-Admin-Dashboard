@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Supprimer le Commentaire - Portfolio{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h4 class="mb-0">
+                    <i class="bi bi-exclamation-triangle me-2"></i>Confirmer la suppression du commentaire
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <i class="bi bi-info-circle me-2"></i>
+                    <strong>Attention !</strong> Cette action est irréversible.
+                </div>
+                
+                <h5>Vous êtes sur le point de supprimer ce commentaire :</h5>
+                <div class="card mt-3">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div>
+                                <strong>{{ comment.author.username }}</strong>
+                                <small class="text-muted ms-2">{{ comment.created_at|date:"d F Y à H:i" }}</small>
+                            </div>
+                            {% if not comment.is_approved %}
+                                <span class="badge bg-warning">En attente de modération</span>
+                            {% endif %}
+                        </div>
+                        <p class="mb-2">{{ comment.content }}</p>
+                        <small class="text-muted">
+                            Sur l'article : <strong>{{ comment.post.title }}</strong>
+                        </small>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <form method="post" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash me-2"></i>Oui, supprimer le commentaire
+                    </button>
+                </form>
+                <a href="{% url 'admin_comments' %}" class="btn btn-outline-secondary ms-2">
+                    <i class="bi bi-x-circle me-1"></i>Annuler
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

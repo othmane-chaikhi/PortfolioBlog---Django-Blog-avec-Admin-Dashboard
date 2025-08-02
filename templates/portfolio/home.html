@@ -1,0 +1,175 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Accueil - Portfolio{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="hero-section bg-primary text-white rounded-3 p-5 mb-5">
+    <div class="row align-items-center">
+        <div class="col-lg-8">
+            <h1 class="display-4 fw-bold mb-3">Bonjour, je suis Othmane Chaikhi</h1>
+            <p class="lead mb-4">
+                Ingénieur en Informatique et Réseaux, je maîtrise le développement web avec des technologies telles que Python/Django, Java/Spring Boot, PHP, .NET Core, JavaScript et React. Fort de plusieurs projets académiques et professionnels, j’ai conçu des applications web fiables, bien structurées et intégrées à des bases de données comme MySQL, Oracle et SQL Server.</br>
+            </p>
+            <div class="mb-4">
+                <span class="badge bg-light text-dark me-2 p-2">Python</span>
+                <span class="badge bg-light text-dark me-2 p-2">Django</span>
+                <span class="badge bg-light text-dark me-2 p-2">JavaScript</span>
+                <span class="badge bg-light text-dark me-2 p-2">Java</span>
+                <span class="badge bg-light text-dark me-2 p-2">Spring Boot</span>
+                <span class="badge bg-light text-dark me-2 p-2">PHP</span>
+                <span class="badge bg-light text-dark me-2 p-2">.NET Core</span>
+                <span class="badge bg-light text-dark me-2 p-2">React</span>
+                <span class="badge bg-light text-dark me-2 p-2">MySQL</span>
+                <span class="badge bg-light text-dark me-2 p-2">Docker</span>
+            </div>
+            <a href="{% url 'blog' %}" class="btn btn-light btn-lg">
+                <i class="bi bi-journal-text me-2"></i>Découvrir mon blog & Projets
+            </a>
+        </div>
+        <div class="col-lg-4 text-center">
+            <img src="{% static 'img/avatar.jpg' %}" 
+                 alt="Portrait" class="img-fluid rounded-circle profile-img">
+        </div>
+    </div>
+</div>
+
+<!-- About Section -->
+<div class="row mb-5">
+    <div class="col-lg-6">
+        <h2 class="h3 mb-4">À propos de moi</h2>
+        <p>
+          Ingénieur en Informatique et Réseaux, je débute ma carrière avec une formation solide et des projets concrets dans les domaines du développement logiciel, du testing, du Big Data et de l’analyse de données. Grâce à mon parcours orienté MIAGE, je combine des compétences techniques en programmation (Python, Java, SQL) avec une bonne compréhension des enjeux métier et de la gestion de projet.
+        </p>
+        <p>
+            Curieux, rigoureux et passionné par la donnée, je m’intéresse particulièrement aux technologies modernes de traitement de données, à la visualisation, ainsi qu’aux outils d’automatisation et d’analyse avancée. Je suis prêt à relever de nouveaux défis et à contribuer activement à des projets innovants et orientés résultats.
+        </p>
+    </div>
+    <div class="col-lg-6">
+        <h2 class="h3 mb-4">Compétences</h2>
+        <div class="skill-item mb-3">
+            <div class="d-flex justify-content-between mb-1">
+                <span>Python/Django</span>
+                <span>90%</span>
+            </div>
+            <div class="progress">
+                <div class="progress-bar bg-primary" style="width: 90%"></div>
+            </div>
+        </div>
+        <div class="skill-item mb-3">
+            <div class="d-flex justify-content-between mb-1">
+                <span>JavaScript/React</span>
+                <span>85%</span>
+            </div>
+            <div class="progress">
+                <div class="progress-bar bg-info" style="width: 85%"></div>
+            </div>
+        </div>
+        <div class="skill-item mb-3">
+            <div class="d-flex justify-content-between mb-1">
+                <span>C/C++/C#/.NetCore</span>
+                <span>75%</span>
+            </div>
+            <div class="progress">
+                <div class="progress-bar bg-warning" style="width: 75%"></div>
+            </div>
+        </div>
+        <div class="skill-item mb-3">
+            <div class="d-flex justify-content-between mb-1">
+                <span>Java/Spring Boot</span>
+                <span>75%</span>
+            </div>
+            <div class="progress">
+                <div class="progress-bar bg-warning" style="width: 75%"></div>
+            </div>
+        </div>
+        <div class="skill-item mb-3">
+            <div class="d-flex justify-content-between mb-1">
+                <span>Base de données</span>
+                <span>80%</span>
+            </div>
+            <div class="progress">
+                <div class="progress-bar bg-success" style="width: 80%"></div>
+            </div>
+        </div>
+        <div class="skill-item mb-3">
+            <div class="d-flex justify-content-between mb-1">
+                <span>PHP</span>
+                <span>75%</span>
+            </div>
+            <div class="progress">
+                <div class="progress-bar bg-warning" style="width: 75%"></div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Recent Posts Section -->
+{% if recent_posts %}
+<div class="mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="h3 mb-0">Articles récents</h2>
+        <a href="{% url 'blog' %}" class="btn btn-outline-primary">
+            Voir tous les articles <i class="bi bi-arrow-right ms-1"></i>
+        </a>
+    </div>
+    
+    <div class="row">
+        {% for post in recent_posts %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                {% if post.media %}
+                    {% if post.media_type == 'video' %}
+                        <video class="card-img-top" style="height: 200px; object-fit: cover;" controls muted>
+                            <source src="{{ post.media.url }}" type="video/mp4">
+                            Votre navigateur ne supporte pas la lecture vidéo.
+                        </video>
+                    {% else %}
+                        <img src="{{ post.media.url }}" class="card-img-top" alt="{{ post.title }}" style="height: 200px; object-fit: cover;">
+                    {% endif %}
+                {% else %}
+                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                        <i class="bi bi-image text-muted" style="font-size: 3rem;"></i>
+                    </div>
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ post.title }}</h5>
+                    <p class="card-text">{{ post.content|truncatewords:15 }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">{{ post.created_at|date:"d M Y" }}</small>
+                        <span class="badge bg-secondary">{{ post.comment_count }} commentaire{{ post.comment_count|pluralize }}</span>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent">
+                    <a href="{% url 'post_detail' post.pk %}" class="btn btn-primary btn-sm">
+                        Lire la suite <i class="bi bi-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Contact Section -->
+<div class="bg-light rounded-3 p-4">
+    <div class="text-center">
+        <h2 class="h3 mb-3">Restons en contact</h2>
+        <p class="mb-4">Intéressé par une collaboration ? N'hésitez pas à me contacter !</p>
+        <div class="d-flex justify-content-center gap-3">
+            <a href="mailto:othmanechaikhi.pro@gmail.com" class="btn btn-outline-primary">
+                <i class="bi bi-envelope me-2"></i>Email
+            </a>
+            <a href="https://www.linkedin.com/in/othmanechaikhi/" target="_blank" class="btn btn-outline-primary">
+                <i class="bi bi-linkedin me-2"></i>LinkedIn
+            </a>
+            <a href="https://github.com/othmane-chaikhi" target="_blank" class="btn btn-outline-primary">
+                <i class="bi bi-github me-2"></i>GitHub
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
