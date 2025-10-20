@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Gestion des Commentaires - Portfolio{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="display-6">
+        <i class="bi bi-chat-dots me-2"></i>Gestion des Commentaires
+    </h1>
+    <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>Dashboard
+    </a>
+</div>
+
+{% if comments %}
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Commentaire</th>
+                            <th>Article</th>
+                            <th>Auteur</th>
+                            <th>Statut</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for comment in comments %}
+                        <tr {% if not comment.is_approved %}class="table-warning"{% endif %}>
+                            <td>
+                                <p class="mb-1">{{ comment.content|truncatechars:80 }}</p>
+                            </td>
+                            <td>
+                                <h6 class="mb-0">{{ comment.post.title|truncatechars:30 }}</h6>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-person-circle me-2"></i>
+                                    <div>
+                                        <div class="fw-bold">{{ comment.author.username }}</div>
+                                        {% if comment.author.email %}
+                                            <small class="text-muted">{{ comment.author.email }}</small>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                {% if comment.is_approved %}
+                                    <span class="badge bg-success">
+                                        <i class="bi bi-check-circle me-1"></i>Approuvé
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-warning">
+                                        <i class="bi bi-hourglass-split me-1"></i>En attente
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <small>{{ comment.created_at|date:"d M Y" }}<br>{{ comment.created_at|date:"H:i" }}</small>
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{% url 'post_detail' comment.post.pk %}#comment-{{ comment.pk }}" 
+                                       class="btn btn-outline-info" target="_blank" title="Voir">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a href="{% url 'admin_comment_toggle' comment.pk %}" 
+                                       class="btn btn-outline-{% if comment.is_approved %}warning{% else %}success{% endif %}" 
+                                       title="{% if comment.is_approved %}Désapprouver{% else %}Approuver{% endif %}">
+                                        <i class="bi bi-{% if comment.is_approved %}eye-slash{% else %}check{% endif %}"></i>
+                                    </a>
+                                    <a href="{% url 'admin_comment_delete' comment.pk %}" 
+                                       class="btn btn-outline-danger" title="Supprimer">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Pagination -->
+        {% if comments.has_other_pages %}
+            <div class="card-footer">
+                <nav aria-label="Pagination">
+                    <ul class="pagination justify-content-center mb-0">
+                        {% if comments.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1">
+                                    <i class="bi bi-chevron-double-left"></i>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ comments.previous_page_number }}">
+                                    <i class="bi bi-chevron-left"></i>
+                                </a>
+                            </li>
+                        {% endif %}
+
+                        {% for num in comments.paginator.page_range %}
+                            {% if comments.number == num %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ num }}</span>
+                                </li>
+                            {% elif num > comments.number|add:'-3' and num < comments.number|add:'3' %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if comments.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ comments.next_page_number }}">
+                                    <i class="bi bi-chevron-right"></i>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ comments.paginator.num_pages }}">
+                                    <i class="bi bi-chevron-double-right"></i>
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+        {% endif %}
+    </div>
+{% else %}
+    <div class="text-center py-5">
+        <i class="bi bi-chat-left text-muted mb-3" style="font-size: 4rem;"></i>
+        <h3 class="text-muted">Aucun commentaire pour le moment</h3>
+        <p class="text-muted">Les commentaires apparaîtront ici lorsque les visiteurs commenceront à interagir avec vos articles.</p>
+    </div>
+{% endif %}
+{% endblock %}

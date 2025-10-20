@@ -1,0 +1,200 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard Admin - Portfolio{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="display-5">
+        <i class="bi bi-speedometer2 me-2"></i>Dashboard Administrateur
+    </h1>
+    <a href="{% url 'admin_post_create' %}" class="btn btn-success">
+        <i class="bi bi-plus-circle me-2"></i>Nouvel article
+    </a>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-5">
+    <div class="col-lg-3 col-md-6 mb-4">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <div class="small">Total Articles</div>
+                        <div class="h3 mb-0">{{ stats.total_posts }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-journal-text" style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-4">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <div class="small">Articles Publiés</div>
+                        <div class="h3 mb-0">{{ stats.published_posts }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-check-circle" style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-4">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <div class="small">Commentaires</div>
+                        <div class="h3 mb-0">{{ stats.total_comments }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-chat-dots" style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-4">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <div class="small">En Attente</div>
+                        <div class="h3 mb-0">{{ stats.pending_comments }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-hourglass-split" style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Recent Posts -->
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-journal-text me-2"></i>Articles Récents
+                </h5>
+                <a href="{% url 'admin_posts' %}" class="btn btn-outline-primary btn-sm">
+                    Voir tous
+                </a>
+            </div>
+            <div class="card-body">
+                {% if posts %}
+                    {% for post in posts %}
+                        <div class="d-flex justify-content-between align-items-center py-2 {% if not forloop.last %}border-bottom{% endif %}">
+                            <div>
+                                <h6 class="mb-1">{{ post.title|truncatechars:40 }}</h6>
+                                <small class="text-muted">{{ post.created_at|date:"d M Y" }}</small>
+                                {% if not post.is_published %}
+                                    <span class="badge bg-secondary ms-2">Brouillon</span>
+                                {% endif %}
+                            </div>
+                            <div class="btn-group btn-group-sm">
+                                <a href="{% url 'admin_post_edit' post.pk %}" class="btn btn-outline-primary btn-sm">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a href="{% url 'post_detail' post.pk %}" class="btn btn-outline-info btn-sm" target="_blank">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted mb-0">Aucun article pour le moment.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Comments -->
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-chat-dots me-2"></i>Commentaires Récents
+                </h5>
+                <a href="{% url 'admin_comments' %}" class="btn btn-outline-primary btn-sm">
+                    Voir tous
+                </a>
+            </div>
+            <div class="card-body">
+                {% if recent_comments %}
+                    {% for comment in recent_comments %}
+                        <div class="d-flex justify-content-between align-items-start py-2 {% if not forloop.last %}border-bottom{% endif %}">
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">{{ comment.author.username }}</h6>
+                                <p class="mb-1 small">{{ comment.content|truncatechars:60 }}</p>
+                                <small class="text-muted">
+                                    Sur "{{ comment.post.title|truncatechars:30 }}" • {{ comment.created_at|date:"d M Y" }}
+                                </small>
+                                {% if not comment.is_approved %}
+                                    <span class="badge bg-warning ms-2">En attente</span>
+                                {% endif %}
+                            </div>
+                            <div class="btn-group btn-group-sm ms-2">
+                                <a href="{% url 'admin_comment_toggle' comment.pk %}" 
+                                   class="btn btn-outline-{% if comment.is_approved %}warning{% else %}success{% endif %} btn-sm">
+                                    <i class="bi bi-{% if comment.is_approved %}eye-slash{% else %}check{% endif %}"></i>
+                                </a>
+                                <a href="{% url 'post_detail' comment.post.pk %}#comment-{{ comment.pk }}" 
+                                   class="btn btn-outline-info btn-sm" target="_blank">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted mb-0">Aucun commentaire pour le moment.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <i class="bi bi-lightning me-2"></i>Actions Rapides
+        </h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <a href="{% url 'admin_post_create' %}" class="btn btn-outline-success w-100">
+                    <i class="bi bi-plus-circle me-2"></i>Créer un article
+                </a>
+            </div>
+            <div class="col-md-4 mb-3">
+                <a href="{% url 'admin_posts' %}" class="btn btn-outline-primary w-100">
+                    <i class="bi bi-journal-text me-2"></i>Gérer les articles
+                </a>
+            </div>
+            <div class="col-md-4 mb-3">
+                <a href="{% url 'admin_comments' %}" class="btn btn-outline-info w-100">
+                    <i class="bi bi-chat-dots me-2"></i>Modérer les commentaires
+                </a>
+            </div>
+            <div class="col-md-4 mb-3">
+                <a href="{% url 'admin_cv_settings' %}" class="btn btn-outline-warning w-100">
+                    <i class="bi bi-file-earmark-arrow-up me-2"></i>Gérer mon CV
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

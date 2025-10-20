@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ post.title }} - Portfolio{% endblock %}
+
+{% block content %}
+<article class="mb-5">
+    <!-- Article Header -->
+    <div class="mb-4">
+        <h1 class="display-5 mb-3">{{ post.title }}</h1>
+        <div class="d-flex align-items-center text-muted mb-3">
+            <i class="bi bi-person me-2"></i>
+            <span class="me-4">{{ post.author.get_full_name|default:post.author.username }}</span>
+            <i class="bi bi-calendar me-2"></i>
+            <span class="me-4">{{ post.created_at|date:"d F Y à H:i" }}</span>
+            <i class="bi bi-chat me-2"></i>
+            <span>{{ comments.count }} commentaire{{ comments.count|pluralize }}</span>
+        </div>
+        <a href="{% url 'blog' %}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i>Retour au blog
+        </a>
+    </div>
+
+    <!-- Article Media -->
+    {% if post.media %}
+        {% if post.media_type == 'video' %}
+            <div class="mb-4">
+                <video controls class="w-100 rounded shadow-sm" style="max-height: 400px; object-fit: cover;">
+                    <source src="{{ post.media.url }}" type="video/mp4">
+                    Votre navigateur ne supporte pas la lecture vidéo.
+                </video>
+            </div>
+        {% else %}
+            <div class="mb-4">
+                <img src="{{ post.media.url }}" alt="{{ post.title }}"
+                     class="img-fluid rounded shadow-sm w-100" style="max-height: 400px; object-fit: cover;">
+            </div>
+        {% endif %}
+    {% elif post.video_url %}
+        {% if post.video_embed_url %}
+            <div class="mb-4 ratio ratio-16x9">
+                <iframe src="{{ post.video_embed_url }}?autoplay=1&mute=1" 
+                    title="{{ post.title }}" allowfullscreen></iframe>
+            </div>
+        {% else %}
+            <div class="alert alert-warning">
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                URL de la vidéo non valide.
+            </div>
+        {% endif %}
+    {% endif %}
+
+    <!-- Article Content -->
+    <div class="post-content mb-5">
+        {{ post.content|linebreaks }}
+    </div>
+
+    <!-- Article Footer -->
+    <div class="border-top pt-3 mb-5">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <small class="text-muted">
+                    Publié le {{ post.created_at|date:"d F Y" }}
+                    {% if post.updated_at != post.created_at %}
+                        • Modifié le {{ post.updated_at|date:"d F Y" }}
+                    {% endif %}
+                </small>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="window.print()">
+                        <i class="bi bi-printer me-1"></i>Imprimer
+                    </button>
+                    <button type="button" class="btn btn-outline-primary btn-sm"
+                            onclick="navigator.share ? navigator.share({title: '{{ post.title }}', url: window.location.href}) : alert('Fonction de partage non supportée')">
+                        <i class="bi bi-share me-1"></i>Partager
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</article>
+
+<!-- Comments Section -->
+<section class="comments-section">
+    <h3 class="mb-4">
+        <i class="bi bi-chat-left-text me-2"></i>
+        Commentaires ({{ comments.count }})
+    </h3>
+
+    {% if user.is_authenticated %}
+        <!-- Comment Form -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <i class="bi bi-plus-circle me-2"></i>Ajouter un commentaire
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        {{ form.content }}
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-send me-2"></i>Publier le commentaire
+                    </button>
+                </form>
+            </div>
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle me-2"></i>
+            <a href="{% url 'login' %}?next={{ request.path }}" class="alert-link">Connectez-vous</a>
+            ou <a href="{% url 'register' %}" class="alert-link">inscrivez-vous</a>
+            pour laisser un commentaire.
+        </div>
+    {% endif %}
+
+    <!-- Comments List -->
+    {% if comments %}
+        <div class="comments-list">
+            {% for comment in comments %}
+                <div class="comment-item mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div class="comment-author">
+                                    <strong>{{ comment.author.get_full_name|default:comment.author.username }}</strong>
+                                    <small class="text-muted ms-2">
+                                        <i class="bi bi-clock me-1"></i>
+                                        {{ comment.created_at|date:"d M Y à H:i" }}
+                                    </small>
+                                </div>
+                                {% if not comment.is_approved %}
+                                    <span class="badge bg-warning">En attente de modération</span>
+                                {% endif %}
+                            </div>
+                            <div class="comment-content">
+                                {{ comment.content|linebreaks }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-4">
+            <i class="bi bi-chat-left text-muted mb-3" style="font-size: 3rem;"></i>
+            <h5 class="text-muted">Aucun commentaire pour le moment</h5>
+            <p class="text-muted">Soyez le premier à laisser un commentaire !</p>
+        </div>
+    {% endif %}
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-resize textarea
+    const textarea = document.querySelector('textarea');
+    if (textarea) {
+        textarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = this.scrollHeight + 'px';
+        });
+    }
+});
+</script>
+{% endblock %}

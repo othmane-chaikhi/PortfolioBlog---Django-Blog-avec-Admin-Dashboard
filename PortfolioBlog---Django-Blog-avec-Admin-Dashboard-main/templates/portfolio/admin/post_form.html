@@ -1,0 +1,230 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    {% if post %}Modifier l'Article{% else %}Créer un Article{% endif %} - Portfolio
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="display-6">
+        <i class="bi bi-{% if post %}pencil{% else %}plus-circle{% endif %} me-2"></i>
+        {% if post %}Modifier l'Article{% else %}Créer un Article{% endif %}
+    </h1>
+    <a href="{% url 'admin_posts' %}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>Retour à la liste
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label for="{{ form.title.id_for_label }}" class="form-label">
+                            <i class="bi bi-type me-1"></i>{{ form.title.label }}
+                        </label>
+                        {{ form.title }}
+                        {% if form.title.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.title.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.content.id_for_label }}" class="form-label">
+                            <i class="bi bi-textarea-t me-1"></i>{{ form.content.label }}
+                        </label>
+                        {{ form.content }}
+                        {% if form.content.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.content.errors.0 }}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">
+                            Vous pouvez utiliser le formatage Markdown pour structurer votre contenu.
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.media.id_for_label }}" class="form-label">
+                            <i class="bi bi-file-earmark-media me-1"></i>{{ form.media.label }}
+                        </label>
+                        {{ form.media }}
+                        {% if form.media.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.media.errors.0 }}
+                            </div>
+                        {% endif %}
+
+                        {% if post and post.media %}
+                            <div class="mt-2 media-preview">
+                                <small class="text-muted">Média actuel :</small><br>
+                                {% if post.media_type == 'video' %}
+                                    <video controls style="max-width: 200px;">
+                                        <source src="{{ post.media.url }}" type="video/mp4">
+                                        Votre navigateur ne supporte pas la lecture vidéo.
+                                    </video>
+                                {% else %}
+                                    <img src="{{ post.media.url }}" alt="Média actuel" class="img-thumbnail mt-1" style="max-width: 200px;">
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+    <label for="{{ form.video_url.id_for_label }}" class="form-label">
+        <i class="bi bi-youtube me-1"></i>{{ form.video_url.label }}
+    </label>
+    {{ form.video_url }}
+    {% if form.video_url.errors %}
+        <div class="invalid-feedback d-block">
+            {{ form.video_url.errors.0 }}
+        </div>
+    {% endif %}
+    <div class="form-text">
+        Collez ici le lien YouTube de votre vidéo (optionnel). Exemple : https://www.youtube.com/watch?v=XXXX
+    </div>
+</div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.media_type.id_for_label }}" class="form-label">
+                            <i class="bi bi-card-checklist me-1"></i>{{ form.media_type.label }}
+                        </label>
+                        {{ form.media_type }}
+                        {% if form.media_type.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.media_type.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-4">
+                        <div class="form-check">
+                            {{ form.is_published }}
+                            <label class="form-check-label" for="{{ form.is_published.id_for_label }}">
+                                <i class="bi bi-eye me-1"></i>{{ form.is_published.label }}
+                            </label>
+                        </div>
+                        <div class="form-text">
+                            Décochez pour sauvegarder en brouillon.
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-check-lg me-2"></i>
+                                {% if post %}Mettre à jour{% else %}Créer l'article{% endif %}
+                            </button>
+                            <a href="{% url 'admin_posts' %}" class="btn btn-outline-secondary ms-2">
+                                Annuler
+                            </a>
+                        </div>
+                        {% if post %}
+                            <a href="{% url 'post_detail' post.pk %}"
+                               class="btn btn-outline-info" target="_blank">
+                                <i class="bi bi-eye me-1"></i>Prévisualiser
+                            </a>
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-info-circle me-2"></i>Aide
+                </h5>
+            </div>
+            <div class="card-body">
+                <h6>Conseils de rédaction :</h6>
+                <ul class="small">
+                    <li>Choisissez un titre accrocheur et descriptif</li>
+                    <li>Utilisez des paragraphes courts pour faciliter la lecture</li>
+                    <li>Ajoutez un média pertinent (image ou vidéo) pour illustrer votre article</li>
+                    <li>Sauvegardez en brouillon pour réviser plus tard</li>
+                </ul>
+
+                <hr>
+
+                <h6>Formatage Markdown :</h6>
+                <div class="small">
+                    <code>**Gras**</code> → <strong>Gras</strong><br>
+                    <code>*Italique*</code> → <em>Italique</em><br>
+                    <code># Titre</code> → Titre principal<br>
+                    <code>## Sous-titre</code> → Sous-titre<br>
+                    <code>[Lien](url)</code> → Lien hypertexte
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-resize textarea
+    const textarea = document.querySelector('#{{ form.content.id_for_label }}');
+    if (textarea) {
+        function resizeTextarea() {
+            textarea.style.height = 'auto';
+            textarea.style.height = Math.max(textarea.scrollHeight, 200) + 'px';
+        }
+        textarea.addEventListener('input', resizeTextarea);
+        resizeTextarea();
+    }
+
+    // Preview media before upload (image or video)
+    const mediaInput = document.querySelector('#{{ form.media.id_for_label }}');
+    const mediaTypeSelect = document.querySelector('#{{ form.media_type.id_for_label }}');
+
+    function clearPreview() {
+        const existingPreview = document.querySelector('.media-preview');
+        if (existingPreview) existingPreview.remove();
+    }
+
+    function createPreview(type, src) {
+        clearPreview();
+        const preview = document.createElement('div');
+        preview.className = 'media-preview mt-2';
+        if (type === 'video') {
+            preview.innerHTML = `
+                <small class="text-muted">Aperçu vidéo :</small><br>
+                <video controls style="max-width: 200px;">
+                    <source src="${src}" type="video/mp4">
+                    Votre navigateur ne supporte pas la lecture vidéo.
+                </video>
+            `;
+        } else {
+            preview.innerHTML = `
+                <small class="text-muted">Aperçu image :</small><br>
+                <img src="${src}" alt="Aperçu" class="img-thumbnail mt-1" style="max-width: 200px;">
+            `;
+        }
+        mediaInput.parentNode.appendChild(preview);
+    }
+
+    mediaInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const type = mediaTypeSelect.value;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                createPreview(type, e.target.result);
+            }
+            reader.readAsDataURL(file);
+        } else {
+            clearPreview();
+        }
+    });
+});
+</script>
+{% endblock %}

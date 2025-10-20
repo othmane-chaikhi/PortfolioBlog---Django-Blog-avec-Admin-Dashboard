@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Supprimer l'Article - Portfolio{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h4 class="mb-0">
+                    <i class="bi bi-exclamation-triangle me-2"></i>Confirmer la suppression
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <i class="bi bi-info-circle me-2"></i>
+                    <strong>Attention !</strong> Cette action est irréversible. 
+                    Tous les commentaires associés à cet article seront également supprimés.
+                </div>
+                
+                <h5>Vous êtes sur le point de supprimer l'article :</h5>
+                <div class="card mt-3">
+                    <div class="card-body">
+                        <h6 class="card-title">{{ post.title }}</h6>
+                        <p class="card-text">{{ post.content|truncatewords:30 }}</p>
+                        <div class="row text-muted small">
+                            <div class="col-sm-6">
+                                <i class="bi bi-calendar me-1"></i>Créé le {{ post.created_at|date:"d F Y" }}
+                            </div>
+                            <div class="col-sm-6">
+                                <i class="bi bi-chat me-1"></i>{{ post.comment_count }} commentaire{{ post.comment_count|pluralize }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <form method="post" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash me-2"></i>Oui, supprimer définitivement
+                    </button>
+                </form>
+                <a href="{% url 'admin_posts' %}" class="btn btn-outline-secondary ms-2">
+                    <i class="bi bi-x-circle me-1"></i>Annuler
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

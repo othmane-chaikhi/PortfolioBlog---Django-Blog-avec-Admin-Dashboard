@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Gestion des Articles - Portfolio{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="display-6">
+        <i class="bi bi-journal-text me-2"></i>Gestion des Articles
+    </h1>
+    <div>
+        <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-secondary me-2">
+            <i class="bi bi-arrow-left me-1"></i>Dashboard
+        </a>
+        <a href="{% url 'admin_post_create' %}" class="btn btn-success">
+            <i class="bi bi-plus-circle me-2"></i>Nouvel article
+        </a>
+    </div>
+</div>
+
+{% if posts %}
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0 align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Media</th> <!-- Nouvelle colonne média -->
+                            <th>Titre</th>
+                            <th>Statut</th>
+                            <th>Commentaires</th>
+                            <th>Date de création</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for post in posts %}
+                        <tr>
+                            <td style="width: 120px;">
+                                {% if post.media %}
+                                    {% if post.media_type == 'video' %}
+                                        <video style="max-width: 100px; max-height: 70px; object-fit: cover;" muted>
+                                            <source src="{{ post.media.url }}" type="video/mp4">
+                                            Votre navigateur ne supporte pas la vidéo.
+                                        </video>
+                                    {% else %}
+                                        <img src="{{ post.media.url }}" alt="{{ post.title }}" 
+                                             style="max-width: 100px; max-height: 70px; object-fit: cover;">
+                                    {% endif %}
+                                {% else %}
+                                    <div class="bg-secondary text-white text-center" 
+                                         style="width: 100px; height: 70px; line-height: 70px;">
+                                        Pas de média
+                                    </div>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <h6 class="mb-1">{{ post.title }}</h6>
+                                <p class="mb-0 text-muted small">{{ post.content|truncatechars:60 }}</p>
+                            </td>
+                            <td>
+                                {% if post.is_published %}
+                                    <span class="badge bg-success">
+                                        <i class="bi bi-check-circle me-1"></i>Publié
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-secondary">
+                                        <i class="bi bi-file-earmark me-1"></i>Brouillon
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge bg-info">
+                                    {{ post.comment_count }} commentaire{{ post.comment_count|pluralize }}
+                                </span>
+                            </td>
+                            <td>
+                                <small>{{ post.created_at|date:"d M Y" }}<br>{{ post.created_at|date:"H:i" }}</small>
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{% url 'post_detail' post.pk %}" 
+                                       class="btn btn-outline-info" target="_blank" title="Voir">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a href="{% url 'admin_post_edit' post.pk %}" 
+                                       class="btn btn-outline-primary" title="Modifier">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a href="{% url 'admin_post_delete' post.pk %}" 
+                                       class="btn btn-outline-danger" title="Supprimer">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        {% if posts.has_other_pages %}
+            <div class="card-footer">
+                <nav aria-label="Pagination">
+                    <ul class="pagination justify-content-center mb-0">
+                        {% if posts.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1">
+                                    <i class="bi bi-chevron-double-left"></i>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ posts.previous_page_number }}">
+                                    <i class="bi bi-chevron-left"></i>
+                                </a>
+                            </li>
+                        {% endif %}
+
+                        {% for num in posts.paginator.page_range %}
+                            {% if posts.number == num %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ num }}</span>
+                                </li>
+                            {% elif num > posts.number|add:'-3' and num < posts.number|add:'3' %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if posts.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ posts.next_page_number }}">
+                                    <i class="bi bi-chevron-right"></i>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ posts.paginator.num_pages }}">
+                                    <i class="bi bi-chevron-double-right"></i>
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+        {% endif %}
+    </div>
+{% else %}
+    <div class="text-center py-5">
+        <i class="bi bi-journal-x text-muted mb-3" style="font-size: 4rem;"></i>
+        <h3 class="text-muted">Aucun article pour le moment</h3>
+        <p class="text-muted">Commencez par créer votre premier article.</p>
+        <a href="{% url 'admin_post_create' %}" class="btn btn-success">
+            <i class="bi bi-plus-circle me-2"></i>Créer mon premier article
+        </a>
+    </div>
+{% endif %}
+{% endblock %}
